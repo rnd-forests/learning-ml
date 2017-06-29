@@ -34,4 +34,3 @@ print(f.eval())
 sess.close()
 
 # To build a Tensorflow program we need to build the computational graph first, then execute that graph.
-

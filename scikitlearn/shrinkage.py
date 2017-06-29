@@ -21,5 +21,3 @@ for _ in range(6):
     plt.scatter(this_X, y, s=3)
 
 plt.show()
-
-

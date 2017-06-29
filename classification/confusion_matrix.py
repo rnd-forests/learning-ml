@@ -43,6 +43,3 @@ y_scores = cross_val_predict(sgd_clf, X_train, y_train_5, cv=3, method='decision
 precisions, recalls, thresholds = precision_recall_curve(y_train_5, y_scores)
 plot_precision_recall_and_threshold(precisions, recalls, thresholds)
 plt.show()
-
-
-

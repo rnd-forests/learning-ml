@@ -26,5 +26,3 @@ sgd_clf.fit(X_train, y_train_5)
 print(sgd_clf.predict([digit]))
 sgd_clf.fit(X_train, y_train)
 print(sgd_clf.predict(X_test))
-
-

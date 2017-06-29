@@ -18,4 +18,3 @@ knn.fit(iris_X_train, iris_y_train)
 prediction = knn.predict(iris_X_test)
 print(prediction)
 print(iris_y_test)
-

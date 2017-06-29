@@ -60,5 +60,3 @@ with tf.Session() as sess:
     best_theta = theta.eval()
 
 file_writer.close()
-
-

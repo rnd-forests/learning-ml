@@ -14,4 +14,3 @@ print(y.graph is tf.get_default_graph())
 
 # Reset the default graph
 tf.reset_default_graph()
-

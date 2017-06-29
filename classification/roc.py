@@ -39,9 +39,3 @@ plt.plot(fpr, tpr, "b:", label="SGD")
 plot_roc_curve(fpr_forest, tpr_forest, "Random Forest")
 
 plt.show()
-
-
-
-
-
-

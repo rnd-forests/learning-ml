@@ -53,4 +53,3 @@ with tf.Session() as sess:
 
 print('Best theta:')
 print(best_theta)
-
