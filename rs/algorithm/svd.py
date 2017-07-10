@@ -4,31 +4,35 @@ import os
 import pandas as pd
 from timeit import default_timer
 from collections import defaultdict
-from surprise import SVD, GridSearch, Dataset, Reader, accuracy, dump
+from surprise import SVDpp, GridSearch, Dataset, Reader, accuracy, dump
 
 
 class Recommender:
-    def __init__(self, rating_scale, rating_data_path, item_data_path,
+    def __init__(self, rating_file_path, item_file_path, rating_scale,
                  param_grid, bsl_options, sim_options, perf_measure='rmse'):
+        self.rating_data_path = rating_file_path
+        self.item_data_path = item_file_path
         self.rating_scale = rating_scale
-        self.rating_data_path = rating_data_path
-        self.item_data_path = item_data_path
         self.param_grid = param_grid
         self.bsl_options = bsl_options
         self.sim_options = sim_options
         self.perf_measure = perf_measure
         self.data = self.load_data()
 
-    def find_estimator(self, verbose=False):
+    def find_best_estimator(self, verbose=False):
         if self.perf_measure not in ['rmse', 'fcp']:
             raise ValueError('Invalid accuracy measurement provided.')
-        grid_search = self.perform_grid_search()
 
+        if verbose:
+            print('Performing Grid Search...')
+
+        grid_search = self.perform_grid_search()
         algo = grid_search.best_estimator[self.perf_measure]
         algo.sim_options = self.sim_options
         algo.bsl_options = self.bsl_options
 
         if verbose:
+            print('Grid Search completed..')
             print(vars(algo))
 
         return algo
@@ -43,7 +47,8 @@ class Recommender:
         try:
             _, algo = dump.load(file_name)
         except FileNotFoundError:
-            algo = self.find_estimator(verbose)
+            algo = self.find_best_estimator(verbose)
+            algo.verbose = verbose
             algo.train(train_set)
             dump.dump(file_name, algo=algo)
 
@@ -57,8 +62,6 @@ class Recommender:
             print('+' * 40)
 
         accuracy.rmse(predictions, verbose=True)
-        accuracy.mae(predictions, verbose=True)
-        # accuracy.fcp(predictions, verbose=True)
         print('+' * 40)
 
         predictions = self.limit_predictions(predictions, n_items)
@@ -93,8 +96,8 @@ class Recommender:
 
     def perform_grid_search(self):
         data = self.data
-        data.split(n_folds=5)
-        grid_search = GridSearch(SVD, param_grid=self.param_grid, measures=['RMSE', 'FCP'], verbose=False)
+        data.split(n_folds=3)
+        grid_search = GridSearch(SVDpp, param_grid=self.param_grid, measures=['RMSE', 'FCP'], verbose=True)
         grid_search.evaluate(data)
 
         return grid_search
