@@ -5,7 +5,7 @@ if __name__ == "__main__":
     ratings = './data/votes.csv'
 
     bsl_options = {'method': 'sgd'}
-    param_grid = {'lr_all': [0.003, 0.007]}
+    param_grid = {'lr_all': [0.0003, 0.0007]}
     sim_options = {'name': 'pearson_baseline', 'user_based': False}
 
     recommender = Recommender(rating_file_path=ratings,
