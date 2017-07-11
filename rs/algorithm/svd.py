@@ -29,7 +29,7 @@ class Recommender:
         try:
             _, algo = dump.load(trained_model)
         except FileNotFoundError:
-            # Performs random sampling on the raw ratings
+            # Perform random sampling on the raw ratings
             raw_ratings = data.raw_ratings
             np.random.shuffle(raw_ratings)
             threshold = int(.8 * len(raw_ratings))
@@ -56,7 +56,7 @@ class Recommender:
 
             if verbose:
                 print('Grid Search completed..')
-                pp = pprint.PrettyPrinter(indent=4)
+                pp = pprint.PrettyPrinter()
                 pp.pprint(vars(algo))
 
             # Retrain on the whole train set
@@ -72,8 +72,7 @@ class Recommender:
         # predictions = algo.test(testset)
         # accuracy.rmse(predictions, verbose=True)
 
-        # Making predictions
-        print('Generating recommendations...')
+        # Generate top-N recommendations
         data = self.data
         trainset = data.build_full_trainset()
         testset = trainset.build_anti_testset()
@@ -81,10 +80,9 @@ class Recommender:
         accuracy.rmse(predictions, verbose=True)
         predictions = self.limit_predictions(predictions, n_items)
         uids = list(uids)
+        results = dict()
         for uid in uids:
-            print('USER: {}'.format(uid))
-            self.get_recommendations_for_user(uid, predictions, verbose)
-            print('+' * 40)
+            results[str(uid)] = self.get_top_items(uid, predictions, verbose)
 
         if verbose:
             duration = default_timer() - start
@@ -92,17 +90,21 @@ class Recommender:
             print('Time elapsed:', duration)
             print('+' * 40)
 
-    def get_recommendations_for_user(self, uid, predictions, verbose):
+        return results
+
+    def get_top_items(self, uid, predictions, verbose):
         if not uid:
             raise ValueError('Invalid user ID provided!')
         try:
             pred_uid = predictions[str(uid)]
             if verbose:
+                print('USER: {}'.format(uid))
                 items = pd.read_csv(self.item_data_path, index_col=None, usecols=('id', 'title'))
                 for _, value in enumerate(pred_uid):
                     item = items.loc[items['id'] == int(value[0])]
                     title = item['title'].values[0] if not item['title'].empty else '<No item found>'
                     print('iid -> {:<5} | est -> {:<18} | {}'.format(value[0], value[1], title))
+                print('+' * 40)
             return pred_uid
         except KeyError:
             print('Cannot find the given user!')

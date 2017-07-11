@@ -1,5 +1,7 @@
 from algorithm import Recommender
 
+import pprint
+
 if __name__ == "__main__":
     items = './data/posts.csv'
     ratings = './data/votes.csv'
@@ -17,5 +19,8 @@ if __name__ == "__main__":
                               sim_options=sim_options,
                               perf_measure='rmse')
 
-    uids = [2, 3, 1087]
-    recommender.recommend(uids=uids, n_items=25, verbose=True)
+    uids = [1087]
+    results = recommender.recommend(uids=uids, n_items=25, verbose=False)
+
+    pp = pprint.PrettyPrinter()
+    pp.pprint(results)
