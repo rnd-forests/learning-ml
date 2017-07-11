@@ -1,6 +1,7 @@
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+import pprint
 import numpy as np
 import pandas as pd
 from timeit import default_timer
@@ -20,71 +21,70 @@ class Recommender:
         self.perf_measure = perf_measure
         self.data = self.load_data()
 
-    def recommend(self, uid, n_items=5, verbose=False):
+    def recommend(self, uids, n_items=5, verbose=False):
         data = self.data
         trained_model = os.path.expanduser('./svd')
 
-        # The raw ratings
-        raw_ratings = data.raw_ratings
-
-        # Shuffle the ratings
-        np.random.shuffle(raw_ratings)
-
-        # Split the ratings into train_raw_ratings (80%) and test_raw_ratings (20%)
-        threshold = int(.8 * len(raw_ratings))
-        trainset_raw_ratings = raw_ratings[:threshold]
-        test_raw_ratings = raw_ratings[threshold:]
-
-        # Assign new ratings to the original data
-        data.raw_ratings = trainset_raw_ratings
-
-        # Perform Grid Search
-        if self.perf_measure not in ['rmse', 'fcp']:
-            raise ValueError('Invalid accuracy measurement provided.')
-
-        if verbose:
-            print('Performing Grid Search...')
-
-        data.split(n_folds=3)
-        grid_search = GridSearch(SVDpp, param_grid=self.param_grid, measures=['RMSE', 'FCP'], verbose=True)
-        grid_search.evaluate(data)
-        algo = grid_search.best_estimator[self.perf_measure]
-        algo.sim_options = self.sim_options
-        algo.bsl_options = self.bsl_options
-        algo.verbose = verbose
-
-        if verbose:
-            print('Grid Search completed..')
-            print(vars(algo))
-
         start = default_timer()
+        try:
+            _, algo = dump.load(trained_model)
+        except FileNotFoundError:
+            # Performs random sampling on the raw ratings
+            raw_ratings = data.raw_ratings
+            np.random.shuffle(raw_ratings)
+            threshold = int(.8 * len(raw_ratings))
+            trainset_raw_ratings = raw_ratings[:threshold]
+            test_raw_ratings = raw_ratings[threshold:]
 
-        # try:
-        #     _, algo = dump.load(file_name)
-        # except FileNotFoundError:
-        #     algo = self.find_best_estimator(verbose)
-        #     algo.verbose = verbose
-        #     algo.train(train_set)
-        #     dump.dump(file_name, algo=algo)
+            # Assign new ratings to the original data
+            data.raw_ratings = trainset_raw_ratings
 
-        # Retrain on the whole train set
-        print('Training on the trainset (80% of ratings)...')
-        trainset = data.build_full_trainset()
-        algo.train(trainset)
+            # Perform Grid Search
+            if self.perf_measure not in ['rmse', 'fcp']:
+                raise ValueError('Invalid accuracy measurement provided.')
+
+            if verbose:
+                print('Performing Grid Search...')
+
+            data.split(n_folds=3)
+            grid_search = GridSearch(SVDpp, param_grid=self.param_grid, measures=['RMSE', 'FCP'], verbose=True)
+            grid_search.evaluate(data)
+            algo = grid_search.best_estimator[self.perf_measure]
+            algo.sim_options = self.sim_options
+            algo.bsl_options = self.bsl_options
+            algo.verbose = verbose
+
+            if verbose:
+                print('Grid Search completed..')
+                pp = pprint.PrettyPrinter(indent=4)
+                pp.pprint(vars(algo))
+
+            # Retrain on the whole train set
+            print('Training using trainset...')
+            trainset = data.build_full_trainset()
+            algo.train(trainset)
+            algo.verbose = verbose
+            dump.dump(trained_model, algo=algo)
 
         # Test on the testset
-        print('Testing on the testset (20% of ratings)...')
-        testset = data.construct_testset(test_raw_ratings)
-        predictions = algo.test(testset)
-        accuracy.rmse(predictions, verbose=True)
+        # print('Evaluating using testset...')
+        # testset = data.construct_testset(test_raw_ratings)
+        # predictions = algo.test(testset)
+        # accuracy.rmse(predictions, verbose=True)
 
-        # Test on an-ti testset
-        print('Making predictions...')
+        # Making predictions
+        print('Generating recommendations...')
         data = self.data
         trainset = data.build_full_trainset()
         testset = trainset.build_anti_testset()
         predictions = algo.test(testset)
         accuracy.rmse(predictions, verbose=True)
+        predictions = self.limit_predictions(predictions, n_items)
+        uids = list(uids)
+        for uid in uids:
+            print('USER: {}'.format(uid))
+            self.get_recommendations_for_user(uid, predictions, verbose)
+            print('+' * 40)
 
         if verbose:
             duration = default_timer() - start
@@ -92,27 +92,20 @@ class Recommender:
             print('Time elapsed:', duration)
             print('+' * 40)
 
-        print('+' * 40)
-
-        predictions = self.limit_predictions(predictions, n_items)
-
-        if uid:
-            try:
-                pred_uid = predictions[str(uid)]
-                if verbose:
-                    items = pd.read_csv(self.item_data_path, index_col=None, usecols=('id', 'title'))
-                    for _, value in enumerate(pred_uid):
-                        item = items.loc[items['id'] == int(value[0])]
-                        title = item['title'].values[0] if not item['title'].empty else '<No item found>'
-                        print('iid -> {:<5} | est -> {:<18} | {}'.format(value[0], value[1], title))
-                return pred_uid
-            except KeyError:
-                print('Cannot find the given user!')
-
-        if verbose:
-            print(predictions)
-
-        return predictions
+    def get_recommendations_for_user(self, uid, predictions, verbose):
+        if not uid:
+            raise ValueError('Invalid user ID provided!')
+        try:
+            pred_uid = predictions[str(uid)]
+            if verbose:
+                items = pd.read_csv(self.item_data_path, index_col=None, usecols=('id', 'title'))
+                for _, value in enumerate(pred_uid):
+                    item = items.loc[items['id'] == int(value[0])]
+                    title = item['title'].values[0] if not item['title'].empty else '<No item found>'
+                    print('iid -> {:<5} | est -> {:<18} | {}'.format(value[0], value[1], title))
+            return pred_uid
+        except KeyError:
+            print('Cannot find the given user!')
 
     def load_data(self):
         rating_scale = self.rating_scale
