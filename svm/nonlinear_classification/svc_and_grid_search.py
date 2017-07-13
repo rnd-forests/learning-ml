@@ -1,48 +1,43 @@
-import pprint
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.datasets import make_moons
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, \
+    accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import GridSearchCV, train_test_split, learning_curve
-from sklearn.metrics import classification_report
 
-X, y = make_moons(n_samples=1000, noise=0.15, random_state=42)
+X, y = make_moons(n_samples=1500, noise=0.15, random_state=42)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 pram_grid = [
-    {'kernel': ['linear', 'rbf'], 'C': [1, 10, 100, 1000]}
+    {'C': [1, 10, 100, 1000], 'gamma': [0.1, 0.2, 0.5, 'auto'], 'kernel': ['rbf']}
 ]
 
-clf = GridSearchCV(SVC(C=1), param_grid=pram_grid, cv=5)
+clf = GridSearchCV(SVC(), param_grid=pram_grid, cv=5)
 clf.fit(X_train, y_train)
-
 y_true, y_pred = y_test, clf.predict(X_test)
 
-pp = pprint.PrettyPrinter()
-print("Classification Report:")
 print(classification_report(y_true, y_pred))
-print()
-
-print("Best Parameters:")
-print(clf.best_params_)
-print()
-
-print("Best Scores:")
-print(clf.best_score_)
-print()
-
+print("Best Parameters: {}".format(clf.best_params_))
+print("Best Scores: {}".format(clf.best_score_))
 print("Best estimator:")
-pp.pprint(clf.best_estimator_)
-
+print(clf.best_estimator_)
+print()
 
 polynomial_svm_clf = Pipeline([
         ("scaler", StandardScaler()),
         ("svm_clf", clf.best_estimator_)
     ])
+polynomial_svm_clf.fit(X_train, y_train)
+y_true, y_pred = y_test, polynomial_svm_clf.predict(X_test)
 
-polynomial_svm_clf.fit(X, y)
+print("Accuracy: {}".format(accuracy_score(y_true, y_pred)))
+print("Precision: {}".format(precision_score(y_true, y_pred)))
+print("Recall: {}".format(recall_score(y_true, y_pred)))
+print("F1: {}".format(f1_score(y_true, y_pred)))
+print()
 
 
 def plot_dataset(X, y, axes):
@@ -65,8 +60,7 @@ def plot_predictions(clf, axes):
     plt.contourf(x0, x1, y_decision, cmap=plt.cm.brg, alpha=0.1)
 
 
-# Train sizes: the stop points of the learning curve
-# More stop points -> smoother curve !?
+# Train sizes: the stop points on the learning curve
 def plot_learning_curve(estimator, title, X, y, cv=None,
                         n_jobs=1, train_sizes=np.linspace(0.1, 1.0, 10)):
     plt.title(title)
@@ -83,14 +77,11 @@ def plot_learning_curve(estimator, title, X, y, cv=None,
 
     plt.grid()
     plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
-                     train_scores_mean + train_scores_std, alpha=0.1,
-                     color="r")
+                     train_scores_mean + train_scores_std, alpha=0.1, color="r")
     plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
                      test_scores_mean + test_scores_std, alpha=0.1, color="g")
-    plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
-             label="Training score")
-    plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
-             label="Cross-validation score")
+    plt.plot(train_sizes, train_scores_mean, 'o-', color="r", label="Training score")
+    plt.plot(train_sizes, test_scores_mean, 'o-', color="g", label="Cross-validation score")
     plt.legend(loc="best")
 
 
