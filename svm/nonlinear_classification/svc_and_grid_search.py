@@ -8,17 +8,23 @@ from sklearn.metrics import classification_report, \
     accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import GridSearchCV, train_test_split, learning_curve
 
+# Loads the moons dataset
 X, y = make_moons(n_samples=1500, noise=0.15, random_state=42)
+
+# Splits the original dataset into trainset and testset
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+# SVC hyper-parameter space used for grid search
 pram_grid = [
     {'C': [1, 10, 100, 1000], 'gamma': [0.1, 0.2, 0.5, 'auto'], 'kernel': ['rbf']}
 ]
 
+# Performs grid search
 clf = GridSearchCV(SVC(), param_grid=pram_grid, cv=5)
 clf.fit(X_train, y_train)
 y_true, y_pred = y_test, clf.predict(X_test)
 
+# Prints classification reports and best values returned from grid search
 print(classification_report(y_true, y_pred))
 print("Best Parameters: {}".format(clf.best_params_))
 print("Best Scores: {}".format(clf.best_score_))
@@ -26,6 +32,7 @@ print("Best estimator:")
 print(clf.best_estimator_)
 print()
 
+# Uses the classifier returned from grid search to make the actual classification
 polynomial_svm_clf = Pipeline([
         ("scaler", StandardScaler()),
         ("svm_clf", clf.best_estimator_)
@@ -33,6 +40,7 @@ polynomial_svm_clf = Pipeline([
 polynomial_svm_clf.fit(X_train, y_train)
 y_true, y_pred = y_test, polynomial_svm_clf.predict(X_test)
 
+# Prints some metrics scores
 print("Accuracy: {}".format(accuracy_score(y_true, y_pred)))
 print("Precision: {}".format(precision_score(y_true, y_pred)))
 print("Recall: {}".format(recall_score(y_true, y_pred)))
