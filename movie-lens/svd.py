@@ -14,7 +14,8 @@ from surprise import SVD, SVDpp, KNNBasic, KNNBaseline, \
 
 class Recommender:
     def __init__(self, algorithm, param_grid, bsl_options, sim_options,
-                 rating_scale=(1, 5), perf_measure='rmse', n_folds=3, dump_model=True):
+                 rating_scale=(1, 5), perf_measure='rmse', n_folds=3,
+                 dump_model=True, trainset_size=0.8):
         self.algorithm = algorithm
         self.param_grid = param_grid
         self.bsl_options = bsl_options
@@ -23,6 +24,7 @@ class Recommender:
         self.perf_measure = perf_measure
         self.n_folds = n_folds
         self.dump_model = dump_model
+        self.trainset_size = trainset_size
         self.data = self.load_data()
 
     def recommend(self, uids, n_items=10, verbose=False):
@@ -35,7 +37,7 @@ class Recommender:
             # Perform random sampling on the raw ratings
             raw_ratings = data.raw_ratings
             np.random.shuffle(raw_ratings)
-            threshold = int(.8 * len(raw_ratings))
+            threshold = int(self.trainset_size * len(raw_ratings))
             trainset_raw_ratings = raw_ratings[:threshold]
             test_raw_ratings = raw_ratings[threshold:]
 
@@ -85,11 +87,6 @@ class Recommender:
         testset = trainset.build_anti_testset()
         predictions = algo.test(testset)
         accuracy.rmse(predictions, verbose=True)
-        predictions = self.limit_predictions(predictions, n_items)
-        uids = list(uids)
-        results = dict()
-        for uid in uids:
-            results[str(uid)] = self.get_top_predictions(uid, predictions)
 
         if verbose:
             duration = default_timer() - start
@@ -98,15 +95,18 @@ class Recommender:
             print('Time elapsed:', duration)
             print('+' * 40)
 
-        return results
+        return self.get_top_predictions(uids, predictions, n_items)
 
-    @staticmethod
-    def get_top_predictions(uid, predictions):
-        if not uid:
+    def get_top_predictions(self, uids, predictions, n_items):
+        if not uids:
             raise ValueError('Invalid user ID provided...')
         try:
-            pred_uid = predictions[str(uid)]
-            return pred_uid
+            results = dict()
+            uids = list(uids)
+            predictions = self.get_top_n(predictions, n_items)
+            for uid in uids:
+                results[str(uid)] = predictions[str(uid)]
+            return results
         except KeyError:
             print('Cannot find the given user...')
 
@@ -116,38 +116,39 @@ class Recommender:
         return data
 
     @staticmethod
-    def limit_predictions(predictions, n):
-        results = defaultdict(list)
+    def get_top_n(predictions, n):
+        top_n = defaultdict(list)
         for uid, iid, _, est, _ in predictions:
-            results[uid].append((iid, est))
+            top_n[uid].append((iid, est))
 
-        for uid, ratings in results.items():
+        for uid, ratings in top_n.items():
             ratings.sort(key=lambda x: x[1], reverse=True)
-            results[uid] = ratings[:n]
+            top_n[uid] = ratings[:n]
 
-        return results
+        return top_n
 
 
 if __name__ == "__main__":
     # Matrix factorization - SVD using Stochastic Gradient Descent
-    bsl_options = {'method': 'sgd'}
-    param_grid = {'n_factors': [20, 50], 'lr_all': [0.0003, 0.0007]}
-    recommender = Recommender(algorithm=SVD,
+    # bsl_options = {'method': 'sgd'}
+    # param_grid = {'n_factors': [20, 50], 'lr_all': [0.0003, 0.0007]}
+    # recommender = Recommender(algorithm=SVD,
+    #                           param_grid=param_grid,
+    #                           bsl_options=bsl_options,
+    #                           sim_options={},
+    #                           perf_measure='rmse',
+    #                           dump_model=False)
+
+
+    # Matrix factorization - SVD++ using Alternating Least Squares
+    bsl_options = {'method': 'als'}
+    param_grid = {'n_epochs': [10, 20], 'reg_all': [0.02, 0.04]}
+    recommender = Recommender(algorithm=SVDpp,
                               param_grid=param_grid,
                               bsl_options=bsl_options,
                               sim_options={},
                               perf_measure='rmse',
-                              dump_model=False)
-
-
-    # Matrix factorization - SVD++ using Alternating Least Squares
-    # bsl_options = {'method': 'als'}
-    # param_grid = {'n_epochs': [10, 20], 'reg_all': [0.02, 0.04]}
-    # recommender = Recommender(algorithm=SVDpp,
-    #                           param_grid=param_grid,
-    #                           bsl_options=bsl_options,
-    #                           sim_options={},
-    #                           perf_measure='rmse')
+                              trainset_size=0.9)
 
 
     # Neighborhood-based collaborative filtering (kNN-basic)
