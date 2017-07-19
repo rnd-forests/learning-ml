@@ -46,14 +46,14 @@ class Recommender:
 
             # Perform Grid Search
             if self.perf_measure not in ['rmse', 'fcp']:
-                raise ValueError('Invalid accuracy measurement provided...')
+                raise ValueError('■ Invalid accuracy measurement provided')
 
             if verbose:
-                print('Performing Grid Search...')
+                print('■ Performing Grid Search')
 
             data.split(n_folds=self.n_folds)
             grid_search = GridSearch(self.algorithm, param_grid=self.param_grid,
-                                     measures=[self.perf_measure], verbose=True)
+                                     measures=[self.perf_measure], verbose=verbose)
             grid_search.evaluate(data)
             algo = grid_search.best_estimator[self.perf_measure]
             algo.sim_options = self.sim_options
@@ -61,12 +61,13 @@ class Recommender:
             algo.verbose = verbose
 
             if verbose:
-                print('Grid Search completed...')
+                print('■ Grid Search completed')
                 pp = pprint.PrettyPrinter()
                 pp.pprint(vars(algo))
 
             # Retrain on the whole train set
-            print('Training using trainset...')
+            if verbose:
+                print('■ Training using trainset')
             trainset = data.build_full_trainset()
             algo.train(trainset)
             algo.verbose = verbose
@@ -75,7 +76,7 @@ class Recommender:
 
             if verbose:
                 # Test on the testset
-                print('Evaluating using testset...')
+                print('■ Evaluating using testset')
                 testset = data.construct_testset(test_raw_ratings)
                 predictions = algo.test(testset)
                 accuracy.rmse(predictions, verbose=True)
@@ -88,27 +89,20 @@ class Recommender:
         predictions = algo.test(testset)
         accuracy.rmse(predictions, verbose=True)
 
-        if verbose:
-            duration = default_timer() - start
-            duration = datetime.timedelta(seconds=math.ceil(duration))
-            print('+' * 40)
-            print('Time elapsed:', duration)
-            print('+' * 40)
+        duration = default_timer() - start
+        duration = datetime.timedelta(seconds=math.ceil(duration))
+        print('■ Time elapsed:', duration)
 
         return self.get_top_predictions(uids, predictions, n_items)
 
     def get_top_predictions(self, uids, predictions, n_items):
         if not uids:
-            raise ValueError('Invalid user ID provided...')
+            raise ValueError('■ Invalid users provided')
         try:
-            results = dict()
-            uids = list(uids)
             predictions = self.get_top_n(predictions, n_items)
-            for uid in uids:
-                results[str(uid)] = predictions[str(uid)]
-            return results
+            return {str(uid): predictions[str(uid)] for uid in list(uids)}
         except KeyError:
-            print('Cannot find the given user...')
+            print('■ Cannot find the given user')
 
     @staticmethod
     def load_data():
@@ -137,18 +131,20 @@ if __name__ == "__main__":
     #                           bsl_options=bsl_options,
     #                           sim_options={},
     #                           perf_measure='rmse',
-    #                           dump_model=False)
+    #                           dump_model=False,
+    #                           trainset_size=0.9)
 
 
     # Matrix factorization - SVD++ using Alternating Least Squares
     bsl_options = {'method': 'als'}
-    param_grid = {'n_epochs': [10, 20], 'reg_all': [0.02, 0.04]}
+    param_grid = {'n_epochs': [10, 20], 'n_factors': [20, 50], 'reg_all': [0.02, 0.04]}
     recommender = Recommender(algorithm=SVDpp,
                               param_grid=param_grid,
                               bsl_options=bsl_options,
                               sim_options={},
                               perf_measure='rmse',
-                              trainset_size=0.9)
+                              dump_model=False,
+                              trainset_size=0.7)
 
 
     # Neighborhood-based collaborative filtering (kNN-basic)
@@ -158,7 +154,8 @@ if __name__ == "__main__":
     #                           param_grid=param_grid,
     #                           bsl_options={},
     #                           sim_options=sim_options,
-    #                           perf_measure='rmse')
+    #                           perf_measure='rmse',
+    #                           dump_model=False)
 
 
     # Neighborhood-based collaborative filtering (kNN-baseline)
@@ -169,7 +166,8 @@ if __name__ == "__main__":
     #                           param_grid=param_grid,
     #                           bsl_options=bsl_options,
     #                           sim_options=sim_options,
-    #                           perf_measure='rmse')
+    #                           perf_measure='rmse',
+    #                           dump_model=False)
 
 
     uids = [1, 2]
