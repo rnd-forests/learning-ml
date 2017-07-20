@@ -79,15 +79,17 @@ class Recommender:
                 print('■ Evaluating using testset')
                 testset = data.construct_testset(test_raw_ratings)
                 predictions = algo.test(testset)
-                accuracy.rmse(predictions, verbose=True)
+                accuracy.rmse(predictions)
 
         # Generate top-N recommendations
+        print('■ Using the best estimator on full dataset')
         start = default_timer()
         data = self.data
         trainset = data.build_full_trainset()
         testset = trainset.build_anti_testset()
         predictions = algo.test(testset)
-        accuracy.rmse(predictions, verbose=True)
+        accuracy.mae(predictions)
+        accuracy.rmse(predictions)
 
         duration = default_timer() - start
         duration = datetime.timedelta(seconds=math.ceil(duration))
@@ -144,7 +146,7 @@ if __name__ == "__main__":
                               sim_options={},
                               perf_measure='rmse',
                               dump_model=False,
-                              trainset_size=0.7)
+                              trainset_size=0.8)
 
 
     # Neighborhood-based collaborative filtering (kNN-basic)
