@@ -139,7 +139,7 @@ if __name__ == "__main__":
 
     # Matrix factorization - SVD++ using Alternating Least Squares
     bsl_options = {'method': 'als'}
-    param_grid = {'n_epochs': [10, 20], 'n_factors': [20, 50], 'reg_all': [0.02, 0.04]}
+    param_grid = {'n_epochs': [20, 30], 'n_factors': [20, 50], 'reg_all': [0.01, 0.02]}
     recommender = Recommender(algorithm=SVDpp,
                               param_grid=param_grid,
                               bsl_options=bsl_options,
