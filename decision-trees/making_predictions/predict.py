@@ -47,9 +47,12 @@ plt.text(1.40, 1.0, "Depth=0", fontsize=15)
 plt.text(3.2, 1.80, "Depth=1", fontsize=13)
 plt.text(4.05, 0.5, "(Depth=2)", fontsize=11)
 
-plt.show()
+# plt.show()
 
-
+prediction = tree_clf.predict_proba([[5, 1.5]])
+print(prediction)
+max = np.argmax(prediction)
+print(prediction.item(max))
 
 """
 - CART: Classification and Regression Trees
