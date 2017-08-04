@@ -1,15 +1,16 @@
 import numpy as np
-from sklearn.datasets import load_iris
-from sklearn.tree import DecisionTreeClassifier
-from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+from sklearn.datasets import make_moons
+from sklearn.tree import DecisionTreeClassifier
 
-iris = load_iris()
-X = iris.data[:, 2:]
-y = iris.target
+X, y = make_moons(n_samples=100, noise=0.25, random_state=42)
 
-tree_clf = DecisionTreeClassifier(max_depth=2, random_state=42)
-tree_clf.fit(X, y)
+tree_clf1 = DecisionTreeClassifier(random_state=42)
+tree_clf2 = DecisionTreeClassifier(min_samples_leaf=4, random_state=42)
+
+tree_clf1.fit(X, y)
+tree_clf2.fit(X, y)
 
 def plot_decision_boundary(clf, X, y, axes=[0, 7.5, 0, 3], iris=True, legend=False, plot_training=True):
     x1s = np.linspace(axes[0], axes[1], 100)
@@ -36,25 +37,12 @@ def plot_decision_boundary(clf, X, y, axes=[0, 7.5, 0, 3], iris=True, legend=Fal
     if legend:
         plt.legend(loc="lower right", fontsize=14)
 
+plt.figure(figsize=(11, 4))
+plt.subplot(121)
+plot_decision_boundary(tree_clf1, X, y, axes=[-1.5, 2.5, -1, 1.5], iris=False)
+plt.title("No restrictions", fontsize=16)
+plt.subplot(122)
+plot_decision_boundary(tree_clf2, X, y, axes=[-1.5, 2.5, -1, 1.5], iris=False)
+plt.title("min_samples_leaf = {}".format(tree_clf2.min_samples_leaf), fontsize=14)
 
-plt.figure(figsize=(8, 4))
-plot_decision_boundary(tree_clf, X, y, legend=True)
-plt.plot([2.45, 2.45], [0, 3], "k-", linewidth=2)
-plt.plot([2.45, 7.5], [1.75, 1.75], "k--", linewidth=2)
-plt.plot([4.95, 4.95], [0, 1.75], "k:", linewidth=2)
-plt.plot([4.85, 4.85], [1.75, 3], "k:", linewidth=2)
-plt.text(1.40, 1.0, "Depth=0", fontsize=15)
-plt.text(3.2, 1.80, "Depth=1", fontsize=13)
-plt.text(4.05, 0.5, "(Depth=2)", fontsize=11)
-
-# plt.show()
-
-prediction = tree_clf.predict_proba([[5, 1.5]])
-print(prediction)
-max = np.argmax(prediction)
-print(prediction.item(max))
-
-"""
-- CART: Classification and Regression Trees
-- Decision tree doesn't require much data preparation. It doesn't require feature scaling or feature centering
-"""
+plt.show()
