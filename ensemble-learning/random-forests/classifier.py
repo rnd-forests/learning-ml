@@ -2,6 +2,7 @@
 Random forests is just an ensemble of Decision Trees (generally using bagging method)
 
 Generally, max_samples is set to the size of training set.
+Samples are drawn using replacement if using Bagging (preferred approach)
 
 RandomForestClassifier has all parameters of DecisionTreeClassifier (for building the tree)
 and BaggingClassifier (for controlling the ensemble)
