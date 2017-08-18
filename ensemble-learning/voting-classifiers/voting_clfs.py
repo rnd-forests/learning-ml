@@ -1,3 +1,17 @@
+"""
+One way to make the final prediction is to aggregate the predictions of each
+classifier and predict the class that gets the most votes. This is called 'hard'
+voting classifier.
+
+In case all classifiers can estimate class probabilities (they all have
+predict_proba() method), we can use 'soft' voting to predict the class with
+the highest class probability (often getting better performance than 'hard' voting).
+
+Support Vector Machine Classifiers doesn't predict class probabilities by default,
+so we need to tell the classifier explicitly about that by setting 'probability'
+property to True.
+"""
+
 from sklearn.ensemble import VotingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -23,16 +37,3 @@ for clf in (log_clf, rnd_clf, svm_clf, voting_clf):
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     print(clf.__class__.__name__, accuracy_score(y_test, y_pred))
-
-"""
-Create a voting classifier using three very different classifiers including
-LogisticRegression, RandomForestClassifier, and SVC.
-
-In case all classifiers can estimate class probabilities (they all have
-predict_proba() method), we can use 'soft' voting to predict the class with
-the highest class probability (often getting better performance than 'hard' voting).
-
-Support Vector Machine Classifiers doesn't predict class probabilities by default,
-so we need to tell the classifier explicitly about that by setting 'probability' 
-property to True.
-"""
