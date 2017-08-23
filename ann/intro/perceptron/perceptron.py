@@ -71,8 +71,8 @@ y_pred = perceptron_clf.predict(X_new)
 zz = y_pred.reshape(x0.shape)
 
 plt.figure(figsize=(10, 4))
-plt.plot(X[y==0, 0], X[y==0, 1], "bs", label="Not Iris-Setosa")
-plt.plot(X[y==1, 0], X[y==1, 1], "yo", label="Iris-Setosa")
+plt.plot(X[y == 0, 0], X[y == 0, 1], "bs", label="Not Iris-Setosa")
+plt.plot(X[y == 1, 0], X[y == 1, 1], "yo", label="Iris-Setosa")
 
 # Decision boundary
 plt.plot([axes[0], axes[1]], [a * axes[0] + b, a * axes[1] + b], "k-", linewidth=3)

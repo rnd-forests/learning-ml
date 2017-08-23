@@ -23,7 +23,7 @@ work with sign function which contains only flat segments.
 
 Common activation functions:
     - Logistic function / Sigmoid function: https://en.wikipedia.org/wiki/Sigmoid_function
-    - Hyperbolic tangent function (tanh): http://functions.wolfram.com/ElementaryFunctions/Tanh/introductions/Tanh/ShowAll.html
+    - Hyperbolic tangent function: http://functions.wolfram.com/ElementaryFunctions/Tanh/introductions/Tanh/ShowAll.html
     - ReLu function (Rectifier Linear Unit): https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
 
 - MLPs are mainly used for classification tasks
@@ -39,14 +39,18 @@ FNN (Feedforward neural network): the signal goes in only one direction from the
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def logit(z):
     return 1 / (1 + np.exp(-z))
+
 
 def relu(z):
     return np.maximum(0, z)
 
+
 def derivative(f, z, eps=0.000001):
     return (f(z + eps) - f(z - eps)) / (2 * eps)
+
 
 z = np.linspace(-5, 5, 200)
 

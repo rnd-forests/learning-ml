@@ -2,6 +2,8 @@
 Training a DNN using TensorFlow's lower-level API
 -------------------------------------------------
 
+Problem: use DNN to classify digits using MNIST dataset (a classical problem :v)
+
 Implement a DNN with the following structures:
     - 2 hidden layers: one with 300 neurons, the other with 100 neurons
     - ReLU activation function
@@ -12,6 +14,8 @@ Implement a DNN with the following structures:
 import numpy as np
 import tensorflow as tf
 from datetime import datetime
+from tensorflow.examples.tutorials.mnist import input_data
+
 
 def reset_tf_graph(seed=42):
     """Reset TensorFlow default graph and set seed number for numpy"""
@@ -19,9 +23,33 @@ def reset_tf_graph(seed=42):
     tf.set_random_seed(seed)
     np.random.seed(seed)
 
-def variable_summaries(var):
-    """Attach a lot of summaries to a Tensor"""
-    with tf.name_scope('summaries'):
+
+"""CONSTRUCTION PHASE"""
+
+n_inputs = 28 * 28  # each image in MNIST dataset is 28x28 pixels
+n_hidden1 = 300     # the number of neurons in the first hidden layer
+n_hidden2 = 100     # the number of neurons in the second hidden layer
+n_outputs = 10      # the number of neurons in the output layers (10 as we're classifying ten numbers)
+
+reset_tf_graph()
+
+with tf.name_scope("input"):
+    # Crete placeholder nodes to represent training data and the targets (labels)
+
+    # The shape of X is partially defined because we don't know how many training instances
+    # will be used. X is a 2D tensor (or matrix) with instances along the first dimension
+    # and features along the second dimension. The number of feature is 28*28 as the size of
+    # the image.
+    X = tf.placeholder(tf.float32, shape=(None, n_inputs), name="X")
+
+    # Similar to X, we don't know the shape of y because we don't know exactly the number of
+    # training instances will be fed in each batch.
+    y = tf.placeholder(tf.int64, shape=None, name="y")
+
+
+def variable_summaries(var, name):
+    """Attach summaries to a Tensor"""
+    with tf.name_scope(name + '-summary'):
         mean = tf.reduce_mean(var)
         tf.summary.scalar('mean', mean)
         with tf.name_scope('stddev'):
@@ -30,37 +58,6 @@ def variable_summaries(var):
         tf.summary.scalar('max', tf.reduce_max(var))
         tf.summary.scalar('min', tf.reduce_min(var))
         tf.summary.histogram('histogram', var)
-
-now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-summary_dir = "{}/run-{}".format('summary', now)
-
-
-"""
-Construction Phase
-------------------
-"""
-
-n_inputs = 28*28  # each image in MNIST dataset is 28x28 pixels
-n_hidden1 = 300   # the number of neurons in the first hidden layer
-n_hidden2 = 100   # the number of neurons in the second hidden layer
-n_outputs = 10    # the number of neurons in the output layers (10 as we're classifying ten numbers)
-
-
-# Reset TensorFlow graph
-reset_tf_graph()
-
-
-# Crete placeholder nodes to represent training data and the targets (labels)
-
-# The shape of X is partially defined because we don't know how many training instances
-# will be used. X is a 2D tensor (or matrix) with instances along the first dimension
-# and features along the second dimension. The number of feature is 28*28 as the size of
-# the image.
-X = tf.placeholder(tf.float32, shape=(None, n_inputs), name="X")
-
-# Similar to X, we don't know the shape of y because we don't know exactly the number of
-# training instances will be fed in each batch.
-y = tf.placeholder(tf.int64, shape=None, name="y")
 
 
 # Create the neural network layer
@@ -71,14 +68,7 @@ y = tf.placeholder(tf.int64, shape=None, name="y")
 # activation function.
 
 def neuron_layer(X, n_neurons, name, activation=None):
-    """
-    Create a layer with specified number of neurons
-    :param X: the training batch
-    :param n_neurons: the number of neurons
-    :param name: the name of the layer
-    :param activation: activation function name
-    :return: new tensor
-    """
+    """Create a layer with specified number of neurons and activation function"""
 
     # Create a name scope using the name of the layer which contains all the computation nodes
     # for this neural layer. Name scope is not required but it makes the visualization process
@@ -106,26 +96,30 @@ def neuron_layer(X, n_neurons, name, activation=None):
         #
         # Ref: https://www.tensorflow.org/api_docs/python/tf/truncated_normal
         #      https://www.tensorflow.org/api_docs/python/tf/matmul
-        stddev = 2 / np.sqrt(n_inputs)
-        init = tf.truncated_normal((n_inputs, n_neurons), stddev=stddev)
-        W = tf.Variable(init, name="kernel")
-        variable_summaries(W)
+        with tf.name_scope("weights"):
+            stddev = 2 / np.sqrt(n_inputs)
+            init = tf.truncated_normal((n_inputs, n_neurons), stddev=stddev)
+            W = tf.Variable(init, name="kernel")
+            variable_summaries(W, "kernel")
 
         # Create b variable for biases (initialized to 0)
-        b = tf.Variable(tf.zeros([n_neurons]), name="bias")
-        variable_summaries(b)
+        with tf.name_scope("biases"):
+            b = tf.Variable(tf.zeros([n_neurons]), name="bias")
+            variable_summaries(b, "bias")
 
         # Create a sub-graph to compute the weighted sums of the inputs (plus the bias term)
         # for each and every neuron in the layer and for all instances in the batch.
         # Here we're using a vectorized implementation for efficiency (as TensorFlow will take
         # care of CPU & GPU utilization for operation like matrix multiplication).
-        Z = tf.matmul(X, W) + b
+        with tf.name_scope("Wx_plus_b"):
+            Z = tf.matmul(X, W) + b
 
         # Apply the specified activation function on the weighted sums if available.
         if activation is not None:
-            act_Z = activation(Z)
-            tf.summary.histogram('activations', act_Z)
-            return act_Z
+            with tf.name_scope("activation"):
+                act_Z = activation(Z)
+                tf.summary.histogram('activations', act_Z)
+                return act_Z
         else:
             tf.summary.histogram('pre_activations', Z)
             return Z
@@ -165,8 +159,9 @@ with tf.name_scope("cross_entropy"):
     xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
 
     # Compute mean cross entropy over all instances.
-    loss = tf.reduce_mean(xentropy, name="loss")
-    tf.summary.scalar('cross_entropy', loss)
+    with tf.name_scope("total"):
+        loss = tf.reduce_mean(xentropy, name="loss")
+tf.summary.scalar('cross_entropy', loss)
 
 
 # Applying Gradient Descent Optimizer to tweak model parameters and minimize the cost function
@@ -176,60 +171,62 @@ with tf.name_scope("train"):
     training_op = optimizer.minimize(loss)
 
 
-# Evaluate the model
+# Evaluate the model by calculating accuracy score
 # We're going to use accuracy as performance measure
-with tf.name_scope("eval"):
+with tf.name_scope("evaluation"):
     # Determine if the neural network's prediction is correct by checking whether
     # or not th highest logit corresponds to the target class. in_top_k() function
     # returns 1D tensor full boolean values, so we need to cast these booleans to
     # floats and then compute the average -> get the overall accuracy.
-    correct = tf.nn.in_top_k(logits, y, 1)
-    accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
+    with tf.name_scope("correct_predicion"):
+        correct = tf.nn.in_top_k(logits, y, 1)
+    with tf.name_scope("accuracy"):
+        accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
     tf.summary.scalar('accuracy', accuracy)
 
 
-# Initialize all variables and create a saver
-init = tf.global_variables_initializer()
-saver = tf.train.Saver()
-
-
-"""
-Execution Phase
----------------
-"""
+"""EXECUTION PHASE"""
 
 # Load the MNIST dataset
-from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("/tmp/data")
 
-n_epochs = 40
-batch_size = 50
+n_epochs = 100    # The number of training iterations
+batch_size = 100  # The size of each mini batch
+
+# The name of summary directory for each run of this file
+summary_dir = "{}/run-{}".format('summary', datetime.utcnow().strftime("%Y%m%d%H%M%S"))
 
 # Merge all the summaries and write them out to log dir
 merged = tf.summary.merge_all()
 train_writer = tf.summary.FileWriter(summary_dir + '/train', tf.get_default_graph())
 test_writer = tf.summary.FileWriter(summary_dir + '/test', tf.get_default_graph())
 
+# Initialize all variables and create a saver
+init = tf.global_variables_initializer()
+saver = tf.train.Saver()
+
 # Train the define model
 with tf.Session() as sess:
-    init.run()  # Initialize all variables
+    init.run()
     for epoch in range(n_epochs):
-        # Load the next mini batch and execute the training operation
-        # on that batch.
+        # Load the next mini batch and execute the training operation on that batch.
         n_batches = mnist.train.num_examples // batch_size
         for iteration in range(n_batches):
             X_batch, y_batch = mnist.train.next_batch(batch_size)
-            summary, _ = sess.run([merged, training_op], feed_dict={X: X_batch, y: y_batch})
-            train_writer.add_summary(summary, epoch * n_batches + iteration)
+            train_summary, _ = sess.run([merged, training_op], feed_dict={X: X_batch, y: y_batch})
+            if iteration % 10 == 0:
+                train_writer.add_summary(train_summary, epoch * n_batches + iteration)
 
         # Compute accuracy score on the last mini batch
-        acc_train = accuracy.eval(feed_dict={X: X_batch, y: y_batch})
+        accuracy_train = accuracy.eval(feed_dict={X: X_batch, y: y_batch})
 
         # Compute accuracy score on the full training set
-        acc_test = accuracy.eval(feed_dict={X: mnist.test.images, y: mnist.test.labels})
+        test_summary, accuracy_test = sess.run([merged, accuracy],
+                                               feed_dict={X: mnist.test.images, y: mnist.test.labels})
+        test_writer.add_summary(test_summary, epoch)
 
-        # Log the accuracy scores
-        print(epoch, "Train accuracy:", acc_train, "Test accuracy:", acc_test)
+        # Log the train and test accuracy scores for each epoch
+        print(epoch, "Train accuracy:", accuracy_train, "Test accuracy:", accuracy_test)
 
     # Save the model parameters
     save_path = saver.save(sess, "./saved/trained_dnn.ckpt")
