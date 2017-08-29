@@ -18,9 +18,10 @@ Batch normalization is the solution
 - Details: https://www.dropbox.com/s/jxva2iqhuo4ssmq/Screenshot%20from%202017-08-29%2009-23-16.png?dl=0
 - All calculations are performed on a mini-batch not the whole training set
 - During testing time, empirical mean and standard deviation are not calculated on mini-batch (because there's no
-  mini-batch). Instead, we use the whole training set's mean and standard deviation (calculated during training)
-- There are four parameters are learned for each batch-normalized layer: γ (scale factor), β (offset - shift factor),
-  μ (mean), and σ (standard deviation).
+  mini-batch). Instead, we use the whole training set's mean and standard deviation (calculated during training using
+  moving average)
+- There are four parameters that are learned for each batch-normalized layer: γ (scale factor),
+  β (offset - shift factor), μ (mean), and σ (standard deviation).
 
 Results:
 - Reduce the V/E gradients problems to the point that we can use saturating activation functions (like tanh or sigmoid).
