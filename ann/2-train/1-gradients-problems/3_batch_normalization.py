@@ -91,25 +91,25 @@ with tf.name_scope("dnn"):
     # Normally, momentum value is greater or equal to 0.9 (very close to 1)
     # Larger datasets, smaller mini-batches -> bigger value of momentum
     # bn1 = tf.layers.batch_normalization(hidden1, training=training, momentum=batch_momentum)
-    bn1 = batch_normalization_layer(hidden1)
+    bn1 = batch_normalization_layer(hidden1, name="bn1")
     tf.summary.histogram("batch_normalization", bn1)
-    bn1_act = tf.nn.elu(bn1)
+    bn1_act = tf.nn.elu(bn1, name="elu_bn1")
     tf.summary.histogram("activations", bn1_act)
 
     hidden2 = dense_layer(bn1_act, n_hidden2, name="hidden2")
-    bn2 = batch_normalization_layer(hidden2)
+    bn2 = batch_normalization_layer(hidden2, name="bn2")
     tf.summary.histogram("batch_normalization", bn2)
-    bn2_act = tf.nn.elu(bn2)
+    bn2_act = tf.nn.elu(bn2, name="elu_bn2")
     tf.summary.histogram("activations", bn2_act)
 
     hidden3 = dense_layer(bn2_act, n_hidden2, name="hidden3")
-    bn3 = batch_normalization_layer(hidden3)
+    bn3 = batch_normalization_layer(hidden3, name="bn3")
     tf.summary.histogram("batch_normalization", bn3)
-    bn3_act = tf.nn.elu(bn3)
+    bn3_act = tf.nn.elu(bn3, name="elu_bn3")
     tf.summary.histogram("activations", bn3_act)
 
     logits_before_bn = dense_layer(bn3_act, n_outputs, name="outputs")
-    logits = batch_normalization_layer(logits_before_bn)
+    logits = batch_normalization_layer(logits_before_bn, name="bn4")
     tf.summary.histogram("batch_normalization", logits)
 
 
@@ -136,9 +136,14 @@ with tf.name_scope("train"):
 with tf.name_scope("evaluation"):
     with tf.name_scope("correct_predicion"):
         correct = tf.nn.in_top_k(logits, y, 1)
-    with tf.name_scope("accuracy"):
-        accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
+    accuracy = tf.reduce_mean(tf.cast(correct, tf.float32), name="accuracy")
     tf.summary.scalar('accuracy', accuracy)
+
+
+# Create a collection containing all important operations.
+# It makes it easier for other people to reuse the trained model
+for op in (X, y, accuracy, training_op):
+    tf.add_to_collection("important_ops", op)
 
 
 def buil_summary_writer(path, graph=tf.get_default_graph()):
