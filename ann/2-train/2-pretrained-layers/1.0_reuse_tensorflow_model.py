@@ -8,7 +8,6 @@ Transfer learning will only work well if the inputs have similar low-level featu
 
 Reusing a TensorFlow model
 --------------------------
-
 """
 
 import os

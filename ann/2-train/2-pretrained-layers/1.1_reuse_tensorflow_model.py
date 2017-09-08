@@ -2,7 +2,7 @@
 If we can access to the original Python code that build the graph, we should use it directly without using
 import_meta_graph() function.
 
-If we want to reuse part of the original model (lower layers typically), just pick the layers that matter to us.
+If we want to reuse part of the original model (typically lower layers), just pick the layers that matter to us.
 
 In the following example, we're going to keep the first three pretrained layers and add a new hidden layer.
 We also need to build a new output layer, the loss for the new output, a new optimizer, new saver, and new
@@ -71,3 +71,34 @@ with tf.Session() as sess:
         accuracy_train = accuracy.eval(feed_dict={X: X_batch, y: y_batch})
         accuracy_test = sess.run(accuracy, feed_dict={X: mnist.test.images, y: mnist.test.labels})
         print(epoch, "Train accuracy:", accuracy_train, "Test accuracy:", accuracy_test)
+
+"""
+If we can access the pretrained graph's Python code, we just need to keep the parts that will be reused and
+drop the rest.
+-> We need to have a separate saver to restore the pretrained model and specify which variables we want to restore
+(or TensorFlow will complain about graph matching problem). We also need another saver to save the new model.
+
+The following is the demo Python code:
+In this example code, we're going to use three pretrained hiddden layers and add another hidden layer on top of
+those three ones.
+"""
+
+# Get the first three hidden layers from the pretrained model. Here, we're using
+# regular expression for scope parameter to match hidden layer number 1, 2, and 3
+reuse_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="hidden[123]")
+
+# Create a dictionary mapping the name of each variable in the original model
+# to its name in the new model (typically the same names are used). Cool!
+reuse_vars_dict = dict([(var.op.name, var) for var in reuse_vars])
+# Create a saver to restore pretrained hidden layers
+resotre_saver = tf.train.Saver(reuse_vars_dict)
+
+init = tf.global_variables_initializer()
+# New saver to store new trained model
+saver = tf.train.Saver()
+
+with tf.Session() as sess:
+    init.run()
+    resotre_saver.restore(sess, './old_model.ckpt')
+    # ... training the model
+    save_path = saver.save(sess, './new_model.ckpt')
