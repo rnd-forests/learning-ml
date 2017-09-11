@@ -2,7 +2,8 @@
 Freezing Lower Layers
 ---------------------
 Generally, lower layers of DNN is used to learn low-level features, so we can just reuse these layers as they are.
-It's better to freeze their weights when training new DNN which makes higher layers easier to train.
+It's better to freeze their weights (make their weights fixed) when training new DNN which makes higher layers easier
+to train.
 
 Solutions:
     - Give the optimizer the list of variables to train excluding variables from lower layers
@@ -45,6 +46,7 @@ with tf.name_scope("train"):
     # Here we get only hidden3, hidden4, and outputs layers.
     # hidden1 and hidden2 are now frozen layers.
     train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="hidden[34]|outputs")
+    # Provide explicitly the variables to the optimizer for training using var_list parameter
     training_op = optimizer.minimize(loss, var_list=train_vars)
 
 init = tf.global_variables_initializer()
@@ -85,16 +87,19 @@ with tf.name_scope("dnn"):
 # Caching the frozen layers
 # Because the frozen layers won't change, it's possible to cache the output
 # of the TOPMOST frozen layer for each training instance.
-# Here hidden2 is the topmost frozen layer.
 n_batches = mnist.train.num_examples // batch_size
 with tf.Session() as sess:
     init.run()
     restore_saver.restore(sess, "./my_model_final.ckpt")
+    # Here hidden2 is the topmost frozen layer.
+    # We're going to cache its output
     h2_cache = sess.run(hidden2, feed_dict={X: mnist.train.images})
     h2_cache_test = sess.run(hidden2, feed_dict={X: mnist.test.images})
 
     for epoch in range(n_epochs):
         shuffled_idx = np.random.permutation(mnist.train.num_examples)
+        # Build up the batches using output from the hidden layer 2
+        # instead of using training instances
         hidden2_batches = np.array_split(h2_cache[shuffled_idx], n_batches)
         y_batches = np.array_split(mnist.train.labels[shuffled_idx], n_batches)
         for hidden2_batch, y_batch in zip(hidden2_batches, y_batches):
