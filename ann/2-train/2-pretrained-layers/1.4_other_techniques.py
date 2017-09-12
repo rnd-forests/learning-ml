@@ -27,7 +27,7 @@ General idea: using unsupervised algorithms to train each layer one by one. Each
 
 Example: If we don't have much labeled training data, we can firstly try to gather more labed data.
          If the process of collecting labeled data takes too long or too expensive, we can try to
-         train each layer one by one, starting with the lowest layer, using  an unsupervised feature
+         train each layer one by one, starting with the lowest layer, using an unsupervised feature
          dectector algorithm such as RMBs (Restricted Boltzmann Machines). After each layer is trained
          using unsupervised learning, we can try to use supervised algorithm (i.e., backpropagation algorithm)
          to tweak the network.
@@ -38,7 +38,7 @@ Ref: https://en.wikipedia.org/wiki/Restricted_Boltzmann_machine
 Pretrain on an Auxiliary Task
 -----------------------------
 General idea: training a first neural network on an auxiliary task for which we can easily obtain labeled data.
-              After that, we can reuse the lower layers of that network for your actual task.
+              After that, we can reuse the lower layers of that network for our actual task.
 
 Keywords: Max Margin Learning
 """

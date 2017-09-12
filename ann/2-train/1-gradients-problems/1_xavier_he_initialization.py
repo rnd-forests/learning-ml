@@ -2,19 +2,19 @@
 Xavier and He Initialization
 ----------------------------
 To prevent vanishing/exploding gradients problems, we need to control the signal flow properly in both directions:
-    - forward (to make predictions)
-    - backward (when backpropagating gradients)
+    - Forward (to make predictions)
+    - Backward (when backpropagating gradients)
 
 Conditions:
--> the variance of the outputs of each layer should be equal to the variance of its inputs
--> the gradients should have equal variance before and after flowing through a layer in the reverse direction
+-> The variance of the outputs of each layer should be equal to the variance of its inputs
+-> The gradients should have equal variance before and after flowing through a layer in the reversed direction
 
 Xavier initialization (Glorot initialization) (using logistic activation function)
 - Using normal distribution with mean 0 and stdv: sigma = sqrt(2 / (n_inputs + n_outputs))
 - Using uniform distribution between -r and r with r = sqrt(6 / (n_inputs + n_outputs))
 
-The number of input and output connections for the layer whose weights are being initialized are so-called
-fan-in and fan-out
+The number of input and output connections for the layer whose weights are being initialized are called
+fan-in and fan-out respectively.
 
 Based on Xavier initialization, other intialization techniques have been developed for other activation functions.
 Initialization strategy for ReLU (and its variants) is called He initialization.

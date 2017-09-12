@@ -50,7 +50,7 @@ tf.get_default_graph().get_tensor_by_name("hidden1/kernel:0")
 tf.get_default_graph().get_tensor_by_name("hidden1/bias:0")
 
 
-# Create new placeholders and assignments nodes
+# Create new placeholders and assignment nodes
 original_weights = tf.placeholder(tf.float32, shape=(n_inputs, n_hidden1))
 original_biases = tf.placeholder(tf.float32, shape=n_hidden1)
 assign_hidden1_weights = tf.assign(hidden1_weights, original_w)
@@ -64,7 +64,7 @@ with tf.Session() as sess:
     sess.run(init, feed_dict={init_kernel: original_w, init_bias: original_b})
 
     # We can create new assignment operations and placeholders and
-    # use them to set the values of the variables manually. However this is not necessary.
+    # use them to set the values of the variables manually. However, this is not necessary.
     # We should use the above approach.
     sess.run(assign_hidden1_weights, feed_dict={original_weights: original_w})
     sess.run(assign_hidden1_biases, feed_dict={original_biases: original_b})

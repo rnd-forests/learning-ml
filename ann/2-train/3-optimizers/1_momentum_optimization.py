@@ -7,40 +7,49 @@ Common optimization techniques are: Momentum, Nesterov Accelerated Gradient, Ada
 Momentum Optimization
 ---------------------
 Ref: https://distill.pub/2017/momentum/
+Ref: https://en.wikipedia.org/wiki/Moving_average
 
 Gradient Descent takes small regular steps down the slope, so it'll take a lot of time to reach the minumum.
 Gradient Descent updates the weights θ by subtracting the gradient of the cost function J(θ) with respect to
 the weights multiplied by the learning rate. Note that Gradient Descent pays no attention to the previous
-graidents. If the local graident is small, Gradient Descent goes very slowly.
+gradients. If the local gradient is small, Gradient Descent goes very slowly.
 
 Momentum optimization, on the other hand, pays a great attention to previous gradients. At each iteration,
-it maintains a momentum vector (m) by adding local gradient to this vector, multiplied by the learning rate.
-It then updates the weights by subtracting that vector.
+it maintains a momentum vector (m) by adding local gradients to this vector. At each iteration, it subtracts
+the local gradient (multiplied by the learning rate) from the vector m. It then updates the weights by adding
+this momentum vector to the current weights.
 
 Momentum algorithm:
-m <- βm + η∇θJ(θ)
-θ <- θ - m
+m <- βm - η∇θJ(θ)
+θ <- θ + m
 
 In Momentum optimization, the gradient is used as an acceleration not a speed?
 
 To prevent the momentum from growing too large, we use a hyperparameter β (called momentum)
-which receives a value between 0 and 1 (generally β is set to 0.9)
+which receives a value between 0 and 1 (generally β is set to 0.9). If β is equal to 0, then
+Momentum becomes the normal Gradient Descent (high friction). If β is close to 1 (no friction),
+then Momentum goes much faster than normal Gradient Descent.
 
-If the gradient remains constant, the terminal velocity (!?) is equal to that gradient
-multiplied by the learning rate, multiplied by 1 / (1 - β). If β = 0.9, the terminal
-velocity is equal to 10 X the gradient x the learning rate, Momentum optimization
-would go 10 times faster than Gradient Descent !? (1000 times if β = 0.999). This characteristic
-allows Momentum optimization to escape from plateaus much fater than GD.
+If the gradient remains constant, the terminal velocity is equal to (1 / (1 - β)) x η∇θJ(θ).
+If β = 0.9, the terminal velocity is equal to 10 X η∇θJ(θ), Momentum optimization
+would go 10 times faster than Gradient Descent (1000 times if β = 0.999). This characteristic
+allows Momentum optimization to escape from plateaus much faster than Gradient Descent.
+
+When input features have very different scales (the cost looks like a elongated bowl), Gradient
+Descent goes down the steep slope quite fast, but it's very slow when going down the valley.
+Momentum, on the other hand, can accelerate itself when going to the bottom of valley (the optimum).
 
 In DNN which doesn't use Batch Normalization, the upper layers often end up having inputs with
-very different scales, using Momentum can be a solution for this problem.
+very different scales, using Momentum can be a solution for this problem (it can also escapes the
+local minimum)
 
-Momentum optimization may overshoot through its steps (like pendulum oscillation) before stabilizing
-at the minimum.
+Momentum optimization may overshoot multiple times through its steps (like pendulum oscillation)
+before stabilizing at the minimum. That's why we use β hyperparameter to introduce a bit of
+friction in the system to reduce the overshooting duration and speed up convergence.
 
-A drawback of  Momentum optimization is that it introduces a new hyperparameter for tuning - the momentum.
+A drawback of Momentum optimization is that it introduces a new hyperparameter - β for tuning.
 However, in real-life problems this value is usually set to 0.9, and it works well in lots of problems.
-Generally, Momentum optimization is faster in reaching to minimum than Gradient Descent.
+Generally, Momentum optimization is faster when reaching to the minimum than Gradient Descent.
 """
 import numpy as np
 import tensorflow as tf

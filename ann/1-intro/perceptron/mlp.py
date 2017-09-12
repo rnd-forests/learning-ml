@@ -1,8 +1,7 @@
 """
 Multi-layer Perceptron and Backpropagation
 ------------------------------------------
-MLP consists of an input layer, one or more LTU layers called hidden layers, and on final LTU layer
-called output layer.
+MLP consists of an input layer, one or more LTU layers - hidden layers, and one final LTU layer called output layer.
 Bias neuron is included in every layer except the output layer
 Layers are fully connected together
 DNN (Deep Neural Network) is an ANN with two or more hidden layers.
@@ -11,20 +10,20 @@ How to train MLPs?
 -> Using Backpropagation (Gradient Descent using reverse-mode autodiff)
    Ref: https://ayearofai.com/rohan-lenny-1-neural-networks-the-backpropagation-algorithm-explained-abf4609d4f9d
 
-General idea behind backpropagation algorithm:
+General ideas behind backpropagation algorithm:
     - Each training instance is used to make prediction (forward pass)
-    - Measure the error
-    - Go through each layer in reverse to measure the error contribution from each connection (reverse pass)
+    - Measuring the error
+    - Go through each layer in reversed order to measure the error contribution from each connection (reverse pass)
     - Tweak the connection weights to reduce the error (Gradient Descent)
 
 In order for the backpropagation algorithm to work properly, we need to change the activation function
-from a simple 'step function' to 'logistic function (sigmoid function)'. The reason is that GD cannot
+from a simple 'step function' to 'logistic function (sigmoid function)'. The reason is that Gradient Descent cannot
 work with sign function which contains only flat segments.
 
 Common activation functions:
     - Logistic function / Sigmoid function: https://en.wikipedia.org/wiki/Sigmoid_function
     - Hyperbolic tangent function: http://functions.wolfram.com/ElementaryFunctions/Tanh/introductions/Tanh/ShowAll.html
-    - ReLu function (Rectifier Linear Unit): https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+    - ReLU function (Rectifier Linear Unit): https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
 
 - MLPs are mainly used for classification tasks
 - Each output is corresponding to a different binary class

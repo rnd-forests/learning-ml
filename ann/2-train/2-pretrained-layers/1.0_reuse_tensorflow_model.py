@@ -1,9 +1,7 @@
 """
 It's not a good idea to train large DNN from scratch. We should find an existing NN that does the similar task
 to the one that we're trying to accomplish. Then, we reuse the lower layers of that network.
-
 This technique is called TRANSFER LEARNING. It speeds up training process and requires much less training data.
-
 Transfer learning will only work well if the inputs have similar low-level features.
 
 Reusing a TensorFlow model
@@ -15,8 +13,8 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
 trained_dir = "~/python/machine-learning/ann/2-train/1-gradients-problems/saved/"
-# Use import_meta_graph() function to import the operations into the
-# default graph. This function returns a Saver instance.
+# Use import_meta_graph() function to import the operations into the default graph.
+# This function returns a Saver instance.
 saver = tf.train.import_meta_graph(os.path.expanduser(trained_dir + "batch_normalization_dnn.ckpt.meta"))
 
 # List all the operations inside the graph using get_operations() function.

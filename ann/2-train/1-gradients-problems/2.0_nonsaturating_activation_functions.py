@@ -3,12 +3,13 @@ Nonsaturating Activation Functions
 ----------------------------------
 Vanishing/Exploding gradients problems can happen because of poor choice of activation function.
 
-ReLU activation is an good choice for activation (compared to signmoid function) because it doesn't saturate for
+ReLU activation is a good choice for activation (compared to sigmoid function) because it doesn't saturate for
 positive class and faster to compute.
 
 Problem of ReLU:
     - Dying ReLUs problem: neurons keep outputting 0 during training process. If a neuron's weights is updated such
-      that the weighted sumof the neuron's inputs is negative, the output will be 0 -> gradient = 0 (negative input)
+      that the weighted sum of the neuron's inputs is negative, the output will be 0 and gradient will be 0 as well
+      (negative input)
 
 ReLU variants
 -------------
@@ -16,10 +17,11 @@ ReLU variants
 Ref: https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#Leaky_ReLUs
 Ref: https://arxiv.org/pdf/1505.00853.pdf
 alpha hyperparameter defines the amount of "leaks" or the slope of the function when z < 0
-The slope ensures LeakyReLU never die and always have chance to wake up -> resolve the 'dying ReLU problem'
+The slope ensures LeakyReLU never die and always have chance to wake up. As a result, it resolves the
+'dying ReLU problem'.
 
-RReLU - Randomized Leaky ReLU is similar to LeakyReLU but alpha is picked randomly in a given range during training,
-and is fixed to an average value during testing. It reduces the risk of overfitting the training set (acting like a
+RReLU - Randomized Leaky ReLU is similar to LeakyReLU, but alpha is picked randomly in a given range during training.
+It is fixed to an average value during testing. It reduces the risk of overfitting the training set (acting like a
 regularizer)
 
 PReLU - Parametric Leaky ReLU is another variant of ReLU where alpha is learned during training process rather than
@@ -30,24 +32,24 @@ trainning set when the dataset is small.
 Ref: https://en.wikipedia.org/wiki/Rectifier_(neural_networks)#ELUs
 This activation function seems to outperform all variants of ReLU, reduce training time, and perform better on test set
 Advantages over ReLU function:
-    - It outputs negative values when z < 0 -> average output closer to 0 -> prevent vanishing graidents problem.
+    - It outputs negative values when z < 0 -> average output closer to 0 -> prevent vanishing gradients problem.
       alpha defines the value that the ELU function'll approach when z is a large negative number (usually set to 1)
-    - Has nonzero graident for z < 0 -> prevent dying neurons problem
-    - It's smooth everywhere -> speed up Gradient Descent
+    - Has nonzero gradient for z < 0 -> prevent dying neurons problem
+    - It's smooth everywhere -> speed up the Gradient Descent process
 
-Main drawback of ELU activation function is that it's slower to compute than ReLU and associated variants (because ELU
+Main drawback of ELU activation function is that it's slower to compute than ReLU and its variants (because ELU
 uses exponential function)
 
 How to choose activation function?
 ----------------------------------
-Generally speaking: ELU > leaky ReLU (and its variants) > ReLU > tanh > logistic (signmoid)
-Better runtim performance then leaky ReLUs > ELUs
-Use the default value of alpha rather than tweaking it (0.01 for leaky ReLU, 1 for ELU)
-If not enough time of computing power -> use cross-validation to evaluate other activation functions
+Generally speaking: ELU > Leaky ReLU (and its variants) > ReLU > Tanh > Logistic (sigmoid)
+Better runtime performance then Leaky ReLUs > ELUs
+Use the default value of alpha rather than tweaking it (0.01 for Leaky ReLU, 1 for ELU)
+If not enough time and computing power -> use cross-validation to evaluate other activation functions
 (RReLU if your network is overfitting, PReLU if training set is huge)
 
 ELU function is built-in in TensorFlow - tf.nn.elu
-For leaky ReLU, we can define our own function :D
+For Leaky ReLU, we can define our own function :D
 """
 
 import numpy as np

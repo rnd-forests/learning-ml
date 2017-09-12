@@ -29,21 +29,20 @@ def reset_tf_graph(seed=42):
 n_inputs = 28 * 28  # each image in MNIST dataset is 28x28 pixels
 n_hidden1 = 300     # the number of neurons in the first hidden layer
 n_hidden2 = 100     # the number of neurons in the second hidden layer
-n_outputs = 10      # the number of neurons in the output layers (10 as we're classifying ten numbers)
+n_outputs = 10      # the number of neurons in the output layers (10 as we're classifying ten digits)
 
 reset_tf_graph()
 
 with tf.name_scope("input"):
-    # Crete placeholder nodes to represent training data and the targets (labels)
+    # Create placeholder nodes to represent training data and the targets (labels)
 
     # The shape of X is partially defined because we don't know how many training instances
     # will be used. X is a 2D tensor (or matrix) with instances along the first dimension
-    # and features along the second dimension. The number of feature is 28*28 as the size of
-    # the image.
+    # and features along the second dimension. The total number of features is 28*28 (784) as the size of the image.
     X = tf.placeholder(tf.float32, shape=(None, n_inputs), name="X")
 
     # Similar to X, we don't know the shape of y because we don't know exactly the number of
-    # training instances will be fed in each batch.
+    # training instances will be fed in each batch during Mini-batch Gradient Descent.
     y = tf.placeholder(tf.int64, shape=None, name="y")
 
 
@@ -62,7 +61,7 @@ def variable_summaries(var, name):
 
 # Create the neural network layer
 # X is now the input layer. During the execution phase, it'll be replaced with one training batch
-# at a time (all instances inside the batch will be process simultaneously by the network).
+# at a time (all instances inside the batch will be processed simultaneously by the network).
 # We need to create two hidden layers (differ by the number of neurons - inputs). The output layer
 # is the same as hidden layer except that it uses 'softmax' activation function rather than 'ReLU'
 # activation function.
@@ -71,8 +70,8 @@ def neuron_layer(X, n_neurons, name, activation=None):
     """Create a layer with specified number of neurons and activation function"""
 
     # Create a name scope using the name of the layer which contains all the computation nodes
-    # for this neural layer. Name scope is not required but it makes the visualization process
-    # in TensorBoard be well organized.
+    # for this layer. Name scope is not required but it makes the visualization process
+    # inside TensorBoard be well organized.
     # Ref: https://www.tensorflow.org/api_docs/python/tf/name_scope
     with tf.name_scope(name=name):
         # Get the number of inputs using the input matrix's shape (the second dimension)
@@ -80,10 +79,11 @@ def neuron_layer(X, n_neurons, name, activation=None):
 
         # Create W variable which holds the weights matrix (layer's kernel).
         # It's 2D tensor containing all the connection weights between each input and each neuron
-        # so the shape will be (n_inputs, n_neurons).
+        # so its shape will be (n_inputs, n_neurons).
         #
         # W is initialized randomly using 'truncated normal' (Gaussian) distribution with the standard
-        # deviation of 2/sqrt(n_inputs). Using this specific std makes the algorithm converge much faster (!?)
+        # deviation of 2/sqrt(n_inputs). Using this specific std makes the algorithm converge much faster
+        # (explained vanishing and exploding gradient problems)
         #
         # Using a truncated normal rather than a regular normal distribution to prevent generating large weights
         # which could slow down the training process.
@@ -139,7 +139,7 @@ with tf.name_scope("dnn"):
 
 # We can use TensorFlow's built-in layer construction functions instead of defining them manually.
 # tf.layers.dense function create a fully connected layer where all the inputs are connected to all
-# the neurons in the layer. Weights and biases and activation are took care of internally.
+# the neurons in the layer. Weights, biases and activation are took care of internally.
 # with tf.name_scope("dnn"):
 #     hidden1 = tf.layers.dense(X, n_hidden1, name="hidden1", activation=tf.nn.relu)
 #     hidden2 = tf.layers.dense(hidden1, n_hidden2, name="hidden2", activation=tf.nn.relu)
@@ -152,7 +152,7 @@ with tf.name_scope("dnn"):
 with tf.name_scope("cross_entropy"):
     # Compute cross entropy based on the logits (the output of the network before going through
     # the softmax activation function). Labels should be in form of integers ranging from 0 to
-    # the number classes-1. For MNIST dataset, labels will be the range 0->9.
+    # the number classes-1. For MNIST dataset, labels will be the range [0, 9].
     # sparse_softmax_cross_entropy_with_logits() returns a 1D tensor containing the cross entropy
     # for each instance. This function is equivalent to applying softmax activation function then
     # computing the cross entropy, but it's more efficient and convenient.
@@ -175,9 +175,9 @@ with tf.name_scope("train"):
 # We're going to use accuracy as performance measure
 with tf.name_scope("evaluation"):
     # Determine if the neural network's prediction is correct by checking whether
-    # or not th highest logit corresponds to the target class. in_top_k() function
-    # returns 1D tensor full boolean values, so we need to cast these booleans to
-    # floats and then compute the average -> get the overall accuracy.
+    # or not the highest logit corresponds to the target class. in_top_k() function
+    # returns 1D tensor of boolean values, so we need to cast these booleans to
+    # floats and then compute the average to get the overall accuracy.
     with tf.name_scope("correct_predicion"):
         correct = tf.nn.in_top_k(logits, y, 1)
     with tf.name_scope("accuracy"):
@@ -196,7 +196,7 @@ batch_size = 100  # The size of each mini batch
 # The name of summary directory for each run of this file
 summary_dir = "{}/run-{}".format('summary', datetime.utcnow().strftime("%Y%m%d%H%M%S"))
 
-# Merge all the summaries and write them out to log dir
+# Merge all the summaries and write them out to the log dir
 merged = tf.summary.merge_all()
 train_writer = tf.summary.FileWriter(summary_dir + '/train', tf.get_default_graph())
 test_writer = tf.summary.FileWriter(summary_dir + '/test', tf.get_default_graph())

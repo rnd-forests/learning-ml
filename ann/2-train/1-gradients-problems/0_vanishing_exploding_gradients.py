@@ -1,32 +1,30 @@
 """
 Vanishing and Exploding Gradients Problems
 ------------------------------------------
-The backpropagation algorithm works by going from the output layer to the input layer and propagating error gradient
-in its way. After the gradient of the cost function with regards to each parameter in the network is computed, it uses
+The Backpropagation algorithm works by going from the output layer to the input layer and propagating error gradient
+in its way. After the gradients of the cost function with regards to each parameter in the network are computed, it uses
 these gradients to update each parameter with a Gradient Descent step.
 
-Problem: gradients getting smaller when going back to lower layers
-As a result, gradient descent update leaves the lower layer connection weights unchanged
--> training process cannot converge to a good solution.
--> vanihsing gradients problem
+Problem: Gradients getting smaller when going back to lower layers.
+         As a result, gradient descent update leaves the lower layer connection weights unchanged.
+-> Training process cannot converge to a good solution.
+-> Causing vanihsing gradients problem.
 
-If gradients getting bigger -> a lot of large weight update -> algorithm dgiverges -> exploding gradients problems
+If gradients getting bigger -> a lot of large weight updates -> algorithm dgiverges -> exploding gradients problems
 (usually happening in RNN)
 
-How to solve unstable gradients problem?
-
-Causes:
-- Signmoid activation function.
+Main causes:
+- Sigmoid activation function.
 - Weight initialization technique (random initialization using normal distribution with mean = 0 and stdv = 1)
-Using the above two techniques make the variance of the outputs of each layer much greater than the variances
+Using the above two techniques makes the variance of the outputs of each layer much greater than the variance
 of its inputs. The variance keeps increasing after each layer as we go forward in the network until the activation
 function saturates at the top layers.
 
-Note that the signmoid function has the mean of 0.5 not 0 as our weight initialization process.
+Note that the sigmoid function has the mean of 0.5 not 0 as our weight initialization process.
 
-Note that for signmoid activation function, when the inputs is large the function saturates at 0 or 1
--> derivative is very close to 0 (getting smaller as we go back from the out put layer)
--> backpropagation algorithm has no gradients to work with in lower layers.
+Note that for sigmoid activation function, when the inputs are large the function saturates at 0 or 1
+-> Derivative is very close to 0 (getting smaller as we go back from the output layer)
+-> Backpropagation algorithm has no gradients to work with in lower layers.
 """
 
 import numpy as np

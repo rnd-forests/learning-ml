@@ -7,8 +7,7 @@ Using He initialization and ELU activation function may prevent vanishing/explod
 of the training process; however, they may come back DURING training process.
 
 Specifically, the distribution of each layer's inputs changes during training as the parameters of the previous layers
-change (Internal Covariate Shift problem - read more in the paper). It's a primary cause of
-vanishing/exploding gradients.
+change (Internal Covariate Shift problem - more in the paper). It's a primary cause of vanishing/exploding gradients.
 
 Batch normalization is the solution
 -----------------------------------
@@ -27,11 +26,11 @@ Results:
 - Reduce the V/E gradients problems to the point that we can use saturating activation functions (like tanh or sigmoid).
 - Less sensitive to weight initialization.
 - Possible to use much larger learning rate to speed up the training process.
-- BN acts as regularizer.
+- Batch Normalization acts as regularizer.
 
-Batch normalization adds some complexity to the model and makes calculations much slower -> slower when making
+Batch Normalization adds some complexity to the model and makes calculations much slower -> slower when making
 predictions.
-Trying to use ELU + He initialization first before attemping to use BN
+Trying to use ELU + He initialization first before attemping to use Batch Normalization
 """
 
 import numpy as np

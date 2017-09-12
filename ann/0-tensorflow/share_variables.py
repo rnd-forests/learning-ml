@@ -25,7 +25,6 @@ logdir = "{}/relu-{}".format(root_logdir, now)
 # output = tf.add_n(relus, name="output")
 
 
-
 def relu(X):
     threshold = tf.get_variable("threshold", shape=(), initializer=tf.constant_initializer(0.0))
     w_shape = (int(X.get_shape()[1]), 1)
@@ -33,6 +32,7 @@ def relu(X):
     b = tf.Variable(0.0, name="bias")
     z = tf.add(tf.matmul(X, w), b, name="z")
     return tf.maximum(z, threshold, name="relu")
+
 
 relus = []
 for relu_index in range(5):

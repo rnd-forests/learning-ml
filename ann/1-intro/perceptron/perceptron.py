@@ -3,19 +3,19 @@ Perceptron
 ----------
 One of the simplest ANN architectures
 Based on a type of artificial neuron called 'linear threshold unit' (LTU)
-    - inputs and outputs are numbers
-    - input connection is associated with a weight
-    - compute the weighted sum of its inputs (z = w1.x1 + w2.x2 + ... + wn.xn = w.T.x <-> vectorized)
-    - apply the step function to the above sum and output the result
+    - Inputs and outputs are numbers
+    - Each input connection is associated with a weight
+    - It computes the weighted sum of its inputs (z = w1.x1 + w2.x2 + ... + wn.xn = w.T.x <-> vectorized)
+    - It applies the step function to the above sum and output the result
         + Heaviside step function: https://en.wikipedia.org/wiki/Heaviside_step_function
         + Sign function: https://en.wikipedia.org/wiki/Sign_function
 
 A single LTU can be used for linear binary classification by computing a linear combination of the inputs.
-If the result exceeds a threshold, it outputs the positive class and negative class otherwise.
+If the result exceeds a threshold, it outputs the positive class and the negative class otherwise.
 
 About bias terms: https://ayearofai.com/rohan-5-what-are-bias-units-828d942b4f52
 
-A perceptron is just a single layer of LTU. Each LTU is connected to all input neurons.
+A Perceptron is just a single layer of LTU. Each LTU is connected to all input neurons.
 A special bias neuron (output 1 all the time) is also connected to all LTU.
 
 Perceptron can be used for multiclass classification tasks.
@@ -28,7 +28,7 @@ Ref: https://www.slideshare.net/AndresMendezVazquez/14-machine-learning-single-l
 -> Using Hebb's rule or Hebb Learning: the connection weight between two neurons is increased
    whenever they have the same output.
 Feed the Perceptron with one training instance at a time and make the predictions for that instance.
-For every output neuron produced a wrong prediction, it reinforces the connection weights from the
+For every output neuron which produced a wrong prediction, it reinforces the connection weights from the
 inputs that would have contributed to the correct prediction.
 
 Think of Perceptron as a resembling version of SGD

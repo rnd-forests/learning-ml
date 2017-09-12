@@ -2,12 +2,9 @@
 Gradient Clipping
 -----------------
 This technique is used to reduce the exploding gradients problem.
-
-Work by clip the gradients during backpropagation to prevent them from exceeding some threshold.
-
-Useful for Recurrent Neural Networks
-
-In most cases, Batch Normalization is the preferred technique when dealing with gradients problems
+It works by clipping the gradients during backpropagation to prevent them from exceeding some thresholds.
+It's useful for Recurrent Neural Networks.
+In most cases, Batch Normalization is the preferred technique when dealing with gradients problems.
 """
 
 import tensorflow as tf

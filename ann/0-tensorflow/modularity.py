@@ -34,6 +34,7 @@ def relu(X):
         z = tf.add(tf.matmul(X, w), b, name="z")
         return tf.maximum(z, 0., name="relu")
 
+
 relus = [relu(X) for i in range(5)]
 output = tf.add_n(relus, name="output")
 summary_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())

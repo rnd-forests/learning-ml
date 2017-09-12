@@ -6,7 +6,7 @@ Ref: https://arxiv.org/pdf/1706.02515.pdf
 This is a relatively new activation function (proposed in 2017). It outperforms other activation functions for DNN.
 
 For a very deep neural network (100 layers for example), this activation function helps preserving roughly mean of 0
-and standard deviation of 1 across all layers -> avoiding V/E gradients problems
+and standard deviation of 1 across all layers -> avoiding Vanishing/Exploding gradients problems
 
 Ref: SELU + Dropout: https://github.com/bioinf-jku/SNNs/blob/master/selu.py
 """

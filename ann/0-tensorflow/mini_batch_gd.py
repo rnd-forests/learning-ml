@@ -39,6 +39,7 @@ def fetch_batch(epoch, batch_index, batch_size):
     y_batch = housing.target.reshape(-1, 1)[indices]
     return X_batch, y_batch
 
+
 n_epochs = 10
 batch_size = 100
 n_batches = int(np.ceil(m / batch_size))

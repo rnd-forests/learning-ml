@@ -1,8 +1,9 @@
 """
-If we can access to the original Python code that build the graph, we should use it directly without using
+If we can access to the original Python code that builds up the graph, we should use it directly without using
 import_meta_graph() function.
 
-If we want to reuse part of the original model (typically lower layers), just pick the layers that matter to us.
+If we want to reuse part of the original model (typically lower layers),
+we just need to pick the layers that matter to us.
 
 In the following example, we're going to keep the first three pretrained layers and add a new hidden layer.
 We also need to build a new output layer, the loss for the new output, a new optimizer, new saver, and new
@@ -84,7 +85,7 @@ those three ones.
 """
 
 # Get the first three hidden layers from the pretrained model. Here, we're using
-# regular expression for scope parameter to match hidden layer number 1, 2, and 3
+# regular expression for scoping parameter to match hidden layer number 1, 2, and 3
 reuse_vars = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="hidden[123]")
 
 # Create a dictionary mapping the name of each variable in the original model
@@ -94,7 +95,7 @@ reuse_vars_dict = dict([(var.op.name, var) for var in reuse_vars])
 resotre_saver = tf.train.Saver(reuse_vars_dict)
 
 init = tf.global_variables_initializer()
-# New saver to store new trained model
+# New saver to store newly trained model
 saver = tf.train.Saver()
 
 with tf.Session() as sess:

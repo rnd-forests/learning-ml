@@ -1,7 +1,6 @@
 """
-Train an MLP using TensorFlow's TF.Learn
-
-TF.Learn (tf.contrib.learn) is a Tensorflow high-level API which offer ScikitLearn-compatible API
+Training a MLP using TensorFlow's TF.Learn
+TF.Learn (tf.contrib.learn) is a Tensorflow high-level API which offers ScikitLearn-compatible API
 """
 
 import tensorflow as tf
@@ -11,7 +10,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 # Download and extract MNIST dataset
 mnist = input_data.read_data_sets("/tmp/data/")
 
-# Construct trainset and testset
+# Construct the trainset and the testset
 X_train = mnist.train.images
 X_test = mnist.test.images
 y_train = mnist.train.labels.astype("int")

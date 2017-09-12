@@ -1,13 +1,13 @@
 """
 Freezing Lower Layers
 ---------------------
-Generally, lower layers of DNN is used to learn low-level features, so we can just reuse these layers as they are.
+Generally, lower layers of DNN are used to learn low-level features, so we can just reuse these layers as they are.
 It's better to freeze their weights (make their weights fixed) when training new DNN which makes higher layers easier
 to train.
 
 Solutions:
     - Give the optimizer the list of variables to train excluding variables from lower layers
-    - Add stop_gradient() layer in the graph so that any layer below it will be frozen.
+    - Add stop_gradient() layer in the graph so that any layers below it will be frozen.
 """
 import numpy as np
 import tensorflow as tf
@@ -43,7 +43,7 @@ with tf.name_scope("eval"):
 with tf.name_scope("train"):
     optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     # Get the list of variables that will be used when training the model and feed them to the optimizer.
-    # Here we get only hidden3, hidden4, and outputs layers.
+    # Here we get only hidden3, hidden4, and output layers.
     # hidden1 and hidden2 are now frozen layers.
     train_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="hidden[34]|outputs")
     # Provide explicitly the variables to the optimizer for training using var_list parameter
