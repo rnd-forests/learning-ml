@@ -51,11 +51,9 @@ A drawback of Momentum optimization is that it introduces a new hyperparameter -
 However, in real-life problems this value is usually set to 0.9, and it works well in lots of problems.
 Generally, Momentum optimization is faster when reaching to the minimum than Gradient Descent.
 """
-import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-z = np.linspace(-5, 5, 200)
 tf.reset_default_graph()
 n_inputs = 784
 n_hidden1 = 300

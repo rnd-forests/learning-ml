@@ -11,11 +11,9 @@ Generally, the momentum vector will point in the right direction (toward the min
 Therefore, it's better to use the gradient measured a bit further in that direction rather
 than using the gradient at the original position.
 """
-import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
-z = np.linspace(-5, 5, 200)
 tf.reset_default_graph()
 n_inputs = 784
 n_hidden1 = 300
