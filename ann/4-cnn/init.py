@@ -20,7 +20,6 @@ def reset_graph(seed=42):
 
 def plot_image(image):
     plt.imshow(image, cmap="gray", interpolation="nearest")
-    plt.axis("off")
 
 
 def plot_color_image(image):
