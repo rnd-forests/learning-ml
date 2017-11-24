@@ -1,4 +1,5 @@
-from __future__ import division, print_function, unicode_literals
+from __future__ import division, print_function, absolute_import, unicode_literals
+
 
 import os
 import numpy as np
@@ -25,3 +26,10 @@ def plot_image(image):
 def plot_color_image(image):
     plt.imshow(image.astype(np.uint8), interpolation="nearest")
     plt.axis("off")
+    
+    
+def random_batch(x_train, y_train, batch_size):
+    rnd_indices = np.random.randint(0, len(x_train), batch_size)
+    x_batch = x_train[rnd_indices]
+    y_batch = y_train[rnd_indices]
+    return x_batch, y_batch
