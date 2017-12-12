@@ -1,0 +1,2 @@
+model_checkpoint_path: "rnn_with_dropout.ckpt"
+all_model_checkpoint_paths: "rnn_with_dropout.ckpt"
