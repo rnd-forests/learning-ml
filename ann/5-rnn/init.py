@@ -12,7 +12,10 @@ plt.rcParams['axes.labelsize'] = 14
 plt.rcParams['xtick.labelsize'] = 12
 plt.rcParams['ytick.labelsize'] = 12
 
-from IPython.display import clear_output, Image, display, HTML
+from IPython.display import clear_output, Image, display, HTML, SVG
+
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets("/tmp/data/")
 
 
 def reset_graph(seed=42):
@@ -20,8 +23,8 @@ def reset_graph(seed=42):
     tf.set_random_seed(seed)
     np.random.seed(seed)
     
-def show_image(filename):
-    return Image(filename=filename)
+def show_image(filename, width='60%'):
+    return Image(filename=filename, width=width)
 
 def strip_consts(graph_def, max_const_size=32):
     """Strip large constant values from graph_def."""
