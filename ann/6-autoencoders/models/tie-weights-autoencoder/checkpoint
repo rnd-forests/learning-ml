@@ -1,0 +1,2 @@
+model_checkpoint_path: "tie-weights.ckpt"
+all_model_checkpoint_paths: "tie-weights.ckpt"
